@@ -1,0 +1,37 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+language: "go"
+stack: "backend"
+id: "pgrok"
+
+fileGroups:
+  sources:
+    - "/pgrok/**/*.go"
+    - "/internal/**/*.go"
+  tests:
+    - "/pgrok/**/*_test.go"
+    - "/internal/**/*_test.go"
+  configs:
+    - "/go.mod"
+    - "/go.sum"
+    - "/.golangci.yml"
+
+tasks:
+  build:
+    command: "go build -v -trimpath -o .bin/pgrok ./pgrok/cli"
+    options:
+      runFromWorkspaceRoot: true
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+    outputs:
+      - "/.bin/pgrok"
+
+  test:
+    command: "go test -cover -race ./pgrok/..."
+    options:
+      runFromWorkspaceRoot: true
+    inputs:
+      - "@group(sources)"
+      - "@group(tests)"
+      - "@group(configs)"

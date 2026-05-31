@@ -7,7 +7,7 @@ dist
 /pgrok.yml
 .idea
 .envrc
-.task
+.moon/cache
 .vite
 
 # System junk

@@ -7,23 +7,22 @@ The pgrok is built and runs as a single binary and meant to be cross platform. T
 The development of pgrok has the following dependencies:
 
 - [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git) (v2 or higher)
-- [Go](https://go.dev/doc/install) (v1.20 or higher)
-- [pnpm](https://pnpm.io/installation) (v8 or higher)
-- [Task](https://taskfile.dev/installation/) (v3)
-- [Overmind](https://github.com/DarthSim/overmind#installation) (v2)
+- [Go](https://go.dev/doc/install) (v1.26 or higher)
+- [pnpm](https://pnpm.io/installation) (v11 or higher)
+- [Moon](https://moonrepo.dev/docs/install) (v2 or higher)
 - [PostgreSQL](https://wiki.postgresql.org/wiki/Detailed_installation_guides) (v10 or higher)
 
 1. Install [Homebrew](https://brew.sh/).
 1. Install dependencies:
 
     ```bash
-    brew install git go pnpm go-task overmind postgresql@15
+    brew install git go pnpm moon postgresql@18
     ```
 
 1. Configure PostgreSQL to start automatically:
 
     ```bash
-    brew services start postgresql@15
+    brew services start postgresql@18
     ```
 
 1.  Ensure `psql`, the PostgreSQL command line client, is on your `$PATH`.
@@ -102,10 +101,10 @@ identity_provider:
 
 ## Step 5: Start the servers
 
-The following command will start processes defined in the [`Procfile`](../../Procfile) and automatically recompile and restart these servers if related files are changed:
+The following command will build and start the pgrokd web, proxy and SSHD servers, along with the web app's Vite dev server and a mock OIDC server:
 
 ```bash
-overmind start
+moon run pgrokd:dev
 ```
 
 Then, visit http://localhost:3320!
@@ -115,3 +114,14 @@ Few things to note:
 - The web, proxy and SSHD servers of the pgrokd are started
 - No need to access the Vite server for the pgrokd web app as all requests to it are proxyed by the pgrokd web server
 - A [mock OIDC server](../../integration-tests/oidc-server/) is started for your convenience
+
+> [!NOTE]
+> If you change any Go source or web asset, rerun `moon run pgrokd:dev` to rebuild and restart the servers.
+
+In dev builds the web app is served live from Vite and is _not_ embedded into the
+`pgrokd` binary. To build and run a production-like binary with the web app
+embedded (via the `prod` build tag), use:
+
+```bash
+moon run pgrokd:prod
+```

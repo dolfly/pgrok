@@ -1,0 +1,10 @@
+$schema: "https://moonrepo.dev/schemas/workspace.json"
+
+projects:
+  pgrok: "pgrok"
+  pgrokd: "pgrokd"
+  pgrokd-web: "pgrokd/web"
+
+vcs:
+  client: "git"
+  defaultBranch: "main"

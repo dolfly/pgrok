@@ -1,0 +1,87 @@
+$schema: "https://moonrepo.dev/schemas/project.json"
+
+language: "go"
+stack: "backend"
+id: "pgrokd"
+
+fileGroups:
+  sources:
+    - "/pgrokd/**/*.go"
+    - "/internal/**/*.go"
+  tests:
+    - "/pgrokd/**/*_test.go"
+    - "/internal/**/*_test.go"
+  configs:
+    - "/go.mod"
+    - "/go.sum"
+    - "/.golangci.yml"
+  assets:
+    - "/pgrokd/cli/dist/**/*"
+
+tasks:
+  build:
+    command: "go build -v -trimpath -o .bin/pgrokd ./pgrokd/cli"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+    outputs:
+      - "/.bin/pgrokd"
+
+  build-prod:
+    command: "go build -v -trimpath -tags prod -o .bin/pgrokd ./pgrokd/cli"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+      - "@group(assets)"
+    outputs:
+      - "/.bin/pgrokd"
+    deps:
+      - "pgrokd-web:build"
+
+  test:
+    command: "go test -cover -race ./..."
+    inputs:
+      - "@group(sources)"
+      - "@group(tests)"
+      - "@group(configs)"
+
+  lint:
+    command: "golangci-lint run"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+
+  format:
+    command: "golangci-lint fmt"
+    inputs:
+      - "@group(sources)"
+      - "@group(configs)"
+
+  server:
+    command: ".bin/pgrokd"
+    preset: "server"
+
+  oidc-server:
+    command: "go run ./integration-tests/oidc-server"
+    preset: "server"
+
+  dev:
+    command: "noop"
+    options:
+      runInCI: false
+      persistent: true
+    deps:
+      - "build"
+      - "server"
+      - "pgrokd-web:dev"
+      - "oidc-server"
+
+  prod:
+    command: "noop"
+    options:
+      runInCI: false
+      persistent: true
+    deps:
+      - "build-prod"
+      - "server"
+      - "oidc-server"
